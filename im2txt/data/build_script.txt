@@ -1,0 +1,7 @@
+python build_mscoco_data.py 
+  --train_image_dir=mscoco/raw-data/train2014 
+  --val_image_dir=mscoco/raw-data/val2014 
+  --train_captions_file=mscoco/raw-data/annotations/captions_train2014.json 
+  --val_captions_file=mscoco/raw-data/annotations/captions_val2014.json 
+  --output_dir=mscoco/ 
+  --word_counts_output_file=mscoco/word_counts.txt

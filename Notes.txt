@@ -1,0 +1,22 @@
+Pycharm:
+See data/ for preprocessing notes.
+Mark the folder "im2txt" in research as Sources Root.
+
+Training configuration:
+--number_of_steps=1000 --input_file_pattern="data/mscoco/train-?????-of-00256"    --inception_checkpoint_file="data/inception/inception_v3.ckpt"    --train_dir="models/train"    --train_inception=false
+
+Evaluation configuration:
+--input_file_pattern="data/mscoco/val-?????-of-00004" --checkpoint_dir=models/train/ --eval_dir=models/eval/
+
+Inference configuration:
+--checkpoint_path=models/train --vocab_file=data/mscoco/word_counts.txt --input_files=data/mscoco/raw-data/val2014/COCO_val2014_0000000000??.jpg
+
+
+
+
+Common changes (python2 to python3):
+tf.gfile.GFile(filename, "r") to tf.gfile.GFile(filename, "rb") because python3 treats "r" as strings instead of bytes.
+
+preprocessing:
+_bytes_feature(bytes(v,encoding='utf-8')) for v in values
+and remove the str cast of the value in bytes_feature(value).
