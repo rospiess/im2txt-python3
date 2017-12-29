@@ -127,7 +127,7 @@ tf.flags.DEFINE_string("unknown_word", "<UNK>",
 tf.flags.DEFINE_integer("min_word_count", 4,
                         "The minimum number of occurrences of each word in the "
                         "training set for inclusion in the vocabulary.")
-tf.flags.DEFINE_string("word_counts_output_file", "/tmp/word_counts.txt",
+tf.flags.DEFINE_string("word_counts_output_file", "./word_counts.txt",
                        "Output vocabulary file of word counts.")
 
 tf.flags.DEFINE_integer("num_threads", 8,
@@ -213,13 +213,13 @@ def _to_sequence_example(image, decoder, vocab):
     A SequenceExample proto.
   """
   # https://github.com/tensorflow/tensorflow/issues/11312
-  with tf.gfile.FastGFile(image.filename, "rb") as f:
-    encoded_image = f.read()
-
   try:
+    with tf.gfile.FastGFile(image.filename, "rb") as f:
+        encoded_image = f.read()
+
     decoder.decode_jpeg(encoded_image)
-  except (tf.errors.InvalidArgumentError, AssertionError):
-    print("Skipping file with invalid JPEG data: %s" % image.filename)
+  except (tf.errors.InvalidArgumentError, AssertionError, tf.errors.NotFoundError):
+    # print("Skipping file with invalid JPEG data: %s" % image.filename)
     return
 
   context = tf.train.Features(feature={
