@@ -72,7 +72,7 @@ def main(_):
     for filename in filenames:
       with tf.gfile.GFile(filename, "rb") as f:
         image = f.read()
-      captions = generator.beam_search(sess, image)
+      captions = generator.depth_first_beam_search(sess, image)
       print("Captions for image %s:" % os.path.basename(filename))
       for i, caption in enumerate(captions):
         # Ignore begin and end words.
