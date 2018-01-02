@@ -23,6 +23,7 @@ import tensorflow as tf
 
 from im2txt import configuration
 from im2txt import show_and_tell_model
+from im2txt import show_and_tell_model_improved
 
 
 FLAGS = tf.app.flags.FLAGS
@@ -38,6 +39,8 @@ tf.flags.DEFINE_boolean("train_inception", False,
 tf.flags.DEFINE_integer("number_of_steps", 1000000, "Number of training steps.")
 tf.flags.DEFINE_integer("log_every_n_steps", 100,
                         "Frequency at which loss and global step are logged.")
+tf.flags.DEFINE_boolean("baseline", False,
+                        "Whether to use the baseline show and tell or the improved one.")
 
 tf.logging.set_verbosity(tf.logging.INFO)
 
@@ -61,9 +64,18 @@ def main(unused_argv):
   g = tf.Graph()
   with g.as_default():
     # Build the model.
-    model = show_and_tell_model.ShowAndTellModel(
-        model_config, mode="train", train_inception=FLAGS.train_inception)
+    if FLAGS.baseline:
+        tf.logging.info("Baseline model")
+        model = show_and_tell_model.ShowAndTellModel(
+            model_config, mode="train", train_inception=FLAGS.train_inception)
+    else:
+        tf.logging.info("Improved model")
+        model = show_and_tell_model_improved.ShowAndTellModel(
+            model_config, mode="train", train_inception=FLAGS.train_inception)
     model.build()
+    for var in tf.trainable_variables():
+        print(var)
+    exit(42)
 
     # Set up the learning rate.
     learning_rate_decay_fn = None

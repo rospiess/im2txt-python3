@@ -26,6 +26,10 @@ tf.flags.DEFINE_string("file_path_prepend", "data/mscoco/raw-data/val2014/",
                        "Path to folder with test images.")
 tf.flags.DEFINE_bool("verbose", False,
                      "Print every caption")
+# Use Baseline or improved model
+tf.flags.DEFINE_bool("improved", True,
+                     "Use improved model")
+
 
 tf.logging.set_verbosity(tf.logging.INFO)
 
@@ -67,7 +71,8 @@ def main(_):
   with g.as_default():
     model = inference_wrapper.InferenceWrapper()
     restore_fn = model.build_graph_from_config(configuration.ModelConfig(),
-                                               FLAGS.checkpoint_path)
+                                               FLAGS.checkpoint_path,
+                                               improved=FLAGS.improved)
   g.finalize()
 
   # Create the vocabulary.
@@ -91,6 +96,8 @@ def main(_):
     global_bleu2_scores = []
     global_bleu4_scores = []
 
+    output_captions = []
+
     for t, img_id in enumerate(test_ids):
         filename = id_to_filename[img_id]
         with tf.gfile.GFile(filename, "rb") as f:
@@ -101,6 +108,9 @@ def main(_):
         bleu1_scores = []
         bleu2_scores = []
         bleu4_scores = []
+        first_sentence = " ".join([vocab.id_to_word(w) for w in captions[0].sentence[1:-1]])
+        print(first_sentence)
+        output_captions.append({"image_id": img_id, "caption": first_sentence})
         for i, caption in enumerate(captions):
             # Ignore begin and end words.
             sentence = [vocab.id_to_word(w) for w in caption.sentence[1:-1]]
@@ -125,11 +135,16 @@ def main(_):
             print(np.mean(global_bleu1_scores))
             print(np.mean(global_bleu2_scores))
             print(np.mean(global_bleu4_scores))
+        if t > 100:
+            break
 
     print("Mean Bleu-1, Bleu-2, Bleu-4 scores:")
     print(np.mean(global_bleu1_scores))
     print(np.mean(global_bleu2_scores))
     print(np.mean(global_bleu4_scores))
+
+    with open('captions_val2014_im2txt_results.json', 'w') as outfile:
+        json.dump(output_captions, outfile)
 
 
 if __name__ == "__main__":
