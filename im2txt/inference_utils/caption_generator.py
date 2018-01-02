@@ -264,7 +264,7 @@ class CaptionGenerator(object):
 
     def bulb_beam_search(self, sess, encoded_image):
         # in beam search manner, but allow discrepancy
-        max_discrepancy = 3
+        max_discrepancy = 0
         max_gap = 3
                 
         def dfs(partial_captions_list,discrepancy):
@@ -332,7 +332,7 @@ class CaptionGenerator(object):
         complete_captions = TopN(self.beam_size)
         partial_captions = TopN(self.beam_size)
 
-        for discrepancy in range(max_discrepancy): # discrepancy = 0 equals simple beam search
+        for discrepancy in range(max_discrepancy+1): # discrepancy = 0 equals simple beam search
             dfs(partial_captions_list,discrepancy)
 
         # If we have no complete captions then fall back to the partial captions.
