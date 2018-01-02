@@ -276,7 +276,7 @@ class CaptionGenerator(object):
                                                                         input_feed,
                                                                         state_feed)
             for i, partial_caption in enumerate(partial_captions_list):
-                caption_length = len(partial_captions.sentence)+1
+                caption_length = len(partial_caption.sentence)+1
                 if caption_length  > self.max_caption_length:
                     partial_captions.push(partial_caption)
                     continue
