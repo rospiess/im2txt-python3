@@ -261,3 +261,85 @@ class CaptionGenerator(object):
         depth_search(initial_caption)
 
         return complete_captions.extract(sort=True)
+
+    def bulb_beam_search(self, sess, encoded_image):
+        # in beam search manner, but allow discrepancy
+        max_discrepancy = 3
+        max_gap = 3
+                
+        def dfs(partial_captions_list,discrepancy):
+            new_partial_captions_list = []
+            input_feed = np.array([c.sentence[-1] for c in partial_captions_list])
+            state_feed = np.array([c.state for c in partial_captions_list])
+
+            softmax, new_states, metadata = self.model.inference_step(sess,
+                                                                        input_feed,
+                                                                        state_feed)
+            for i, partial_caption in enumerate(partial_captions_list):
+                caption_length = len(partial_captions.sentence)+1
+                if caption_length  > self.max_caption_length:
+                    partial_captions.push(partial_caption)
+                    continue
+                word_probabilities = softmax[i]
+                state = new_states[i]
+                # For this partial caption, get the (max_gap+1)*beam_size most probable next words.
+                words_and_probs = list(enumerate(word_probabilities))
+                words_and_probs.sort(key=lambda x: -x[1])
+                words_and_probs = words_and_probs[0:self.beam_size*(max_gap+1)]
+                # Each next word gives a new partial caption.
+                for w, p in words_and_probs:
+                    if p < 1e-12:
+                        continue  # Avoid log(0).
+                    sentence = partial_caption.sentence + [w]
+                    logprob = partial_caption.logprob + math.log(p)
+                    score = logprob
+                    if w == self.vocab.end_id:
+                        if self.length_normalization_factor > 0:
+                            score /= len(sentence) ** self.length_normalization_factor
+                        beam = Caption(sentence, state, logprob, score)
+                        complete_captions.push(beam)
+                    else:
+                        beam = Caption(sentence, state, logprob, score)
+                        new_partial_captions_list.append(beam)
+
+            if len(partial_captions_list) == 0:
+                # We have run out of partial candidates; happens when beam_size = 1.
+                return
+            
+            # sort all the partial_captions and keep top self.beam_size*(max_gap+1) partial captions
+            new_partial_captions_list.sort()
+            new_partial_captions_list = new_partial_captions_list[0:self.beam_size*(max_gap+1)]
+                
+            if discrepancy > 0:
+                for gap in range(1,max_gap+1):
+                    partial_captions_slice = new_partial_captions_list[gap*self.beam_size:(gap+1)*self.beam_size]
+                    dfs(partial_captions_slice,discrepancy-1)
+            partial_captions_slice = new_partial_captions_list[0:self.beam_size]
+            dfs(partial_captions_slice,discrepancy)
+
+        # Feed in the image to get the initial state.
+        initial_state = self.model.feed_image(sess, encoded_image)
+
+        initial_beam = Caption(
+            sentence=[self.vocab.start_id],
+            state=initial_state[0],
+            logprob=0.0,
+            score=0.0)
+        partial_captions_list = [initial_beam]
+        complete_captions = TopN(self.beam_size)
+        partial_captions = TopN(self.beam_size)
+
+        for discrepancy in range(max_discrepancy): # discrepancy = 0 equals simple beam search
+            dfs(partial_captions_list,discrepancy)
+
+        # If we have no complete captions then fall back to the partial captions.
+        # But never output a mixture of complete and partial captions because a
+        # partial caption could have a higher score than all the complete captions.
+        if not complete_captions.size():
+            complete_captions = partial_captions
+
+        return complete_captions.extract(sort=True)
+
+
+        
+
