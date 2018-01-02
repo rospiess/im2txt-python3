@@ -281,7 +281,8 @@ class CaptionGenerator(object):
             for i, partial_caption in enumerate(partial_captions_list):
                 caption_length = len(partial_caption.sentence)+1
                 if caption_length  > self.max_caption_length:
-                    partial_captions.push(partial_caption)
+                    if discrepancy ==0 :
+                        partial_captions.push(partial_caption)
                     continue
                 word_probabilities = softmax[i]
                 state = new_states[i]
@@ -297,10 +298,11 @@ class CaptionGenerator(object):
                     logprob = partial_caption.logprob + math.log(p)
                     score = logprob
                     if w == self.vocab.end_id:
-                        if self.length_normalization_factor > 0:
-                            score /= len(sentence) ** self.length_normalization_factor
-                        beam = Caption(sentence, state, logprob, score)
-                        complete_captions.push(beam)
+                        if discrepancy == 0:
+                            if self.length_normalization_factor > 0:
+                                score /= len(sentence) ** self.length_normalization_factor
+                            beam = Caption(sentence, state, logprob, score)
+                            complete_captions.push(beam)
                     else:
                         beam = Caption(sentence, state, logprob, score)
                         new_partial_captions_list.append(beam)
