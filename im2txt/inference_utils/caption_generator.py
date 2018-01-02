@@ -310,7 +310,7 @@ class CaptionGenerator(object):
                 return
             
             # sort all the partial_captions and keep top self.beam_size*(max_gap+1) partial captions
-            new_partial_captions_list.sort()
+            new_partial_captions_list.sort(reverse=True)
             new_partial_captions_list = new_partial_captions_list[0:self.beam_size*(max_gap+1)]
                 
             if discrepancy > 0:
