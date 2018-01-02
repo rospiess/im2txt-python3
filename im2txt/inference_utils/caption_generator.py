@@ -268,6 +268,9 @@ class CaptionGenerator(object):
         max_gap = 3
                 
         def dfs(partial_captions_list,discrepancy):
+            if len(partial_captions_list) == 0:
+                # We have run out of partial candidates; happens when beam_size = 1.
+                return
             new_partial_captions_list = []
             input_feed = np.array([c.sentence[-1] for c in partial_captions_list])
             state_feed = np.array([c.state for c in partial_captions_list])
