@@ -20,6 +20,7 @@ from __future__ import print_function
 
 import heapq
 import math
+import time
 
 import numpy as np
 
@@ -147,6 +148,7 @@ class CaptionGenerator(object):
         Returns:
           A list of Caption sorted by descending score.
         """
+        start_time = time.time()
         # Feed in the image to get the initial state.
         initial_state = self.model.feed_image(sess, encoded_image)
 
@@ -207,6 +209,8 @@ class CaptionGenerator(object):
         if not complete_captions.size():
             complete_captions = partial_captions
 
+        end_time = time.time()
+        print("inference time ",end_time-start_time,"s")
         return complete_captions.extract(sort=True)
 
     def depth_first_beam_search(self, sess, encoded_image):
@@ -263,9 +267,10 @@ class CaptionGenerator(object):
         return complete_captions.extract(sort=True)
 
     def bulb_beam_search(self, sess, encoded_image):
+        start_time = time.time()
         # in beam search manner, but allow discrepancy
         max_discrepancy = 0
-        max_gap = 3
+        max_gap = 1
                 
         def dfs(partial_captions_list,discrepancy):
             if len(partial_captions_list) == 0:
@@ -343,6 +348,8 @@ class CaptionGenerator(object):
         if not complete_captions.size():
             complete_captions = partial_captions
 
+        end_time = time.time()
+        print("inference time ",end_time-start_time,"s")
         return complete_captions.extract(sort=True)
 
 
