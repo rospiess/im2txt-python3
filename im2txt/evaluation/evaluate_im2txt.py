@@ -2,7 +2,7 @@ from pycocotools.coco import COCO
 from pycocoevalcap.eval import COCOEvalCap
 
 # set up file names and pathes
-dataDir='../data/mscoco/raw-data/'
+dataDir='data/mscoco/raw-data'
 dataType='val2014'
 algName = 'im2txt'
 annFile='%s/annotations/captions_%s.json'%(dataDir,dataType)
