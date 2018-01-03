@@ -472,6 +472,16 @@ def main(unused_argv):
   val_dataset = mscoco_val_dataset[train_cutoff:val_cutoff]
   test_dataset = mscoco_val_dataset[val_cutoff:]
 
+
+  # Write file names of validation and test set
+  with open("images_in_validationset.txt",'w') as f:
+    for img in val_dataset:
+      f.write(str(img.image_id)+"\n")
+  with open("images_in_testset.txt",'w') as f:
+    for img in test_dataset:
+      f.write(str(img.image_id)+"\n")
+
+
   # Create vocabulary from the training captions.
   train_captions = [c for image in train_dataset for c in image.captions]
   vocab = _create_vocab(train_captions)
