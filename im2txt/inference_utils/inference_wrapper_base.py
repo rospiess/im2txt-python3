@@ -59,7 +59,7 @@ class InferenceWrapperBase(object):
   def __init__(self):
     pass
 
-  def build_model(self, model_config):
+  def build_model(self, model_config, improved=False):
     """Builds the model for inference.
 
     Args:
@@ -99,7 +99,7 @@ class InferenceWrapperBase(object):
 
     return _restore_fn
 
-  def build_graph_from_config(self, model_config, checkpoint_path):
+  def build_graph_from_config(self, model_config, checkpoint_path, improved=False):
     """Builds the inference graph from a configuration object.
 
     Args:
@@ -111,11 +111,18 @@ class InferenceWrapperBase(object):
       restore_fn: A function such that restore_fn(sess) loads model variables
         from the checkpoint file.
     """
-    tf.logging.info("Building model.")
-    self.build_model(model_config)
-    saver = tf.train.Saver()
+    if improved:
+      tf.logging.info("Building model.")
+      self.build_model(model_config, improved=True)
+      saver = tf.train.Saver()
 
-    return self._create_restore_fn(checkpoint_path, saver)
+      return self._create_restore_fn(checkpoint_path, saver)
+    else:
+      tf.logging.info("Building model.")
+      self.build_model(model_config)
+      saver = tf.train.Saver()
+
+      return self._create_restore_fn(checkpoint_path, saver)
 
   def build_graph_from_proto(self, graph_def_file, saver_def_file,
                              checkpoint_path):

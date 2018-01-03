@@ -22,6 +22,7 @@ from __future__ import print_function
 
 
 from im2txt import show_and_tell_model
+from im2txt import show_and_tell_model_improved
 from im2txt.inference_utils import inference_wrapper_base
 
 
@@ -31,10 +32,15 @@ class InferenceWrapper(inference_wrapper_base.InferenceWrapperBase):
   def __init__(self):
     super(InferenceWrapper, self).__init__()
 
-  def build_model(self, model_config):
-    model = show_and_tell_model.ShowAndTellModel(model_config, mode="inference")
-    model.build()
-    return model
+  def build_model(self, model_config, improved=False):
+    if improved:
+        model = show_and_tell_model_improved.ShowAndTellModel(model_config, mode="inference")
+        model.build()
+        return model
+    else:
+        model = show_and_tell_model.ShowAndTellModel(model_config, mode="inference")
+        model.build()
+        return model
 
   def feed_image(self, sess, encoded_image):
     initial_state = sess.run(fetches="lstm/initial_state:0",
