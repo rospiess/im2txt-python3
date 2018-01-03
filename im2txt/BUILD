@@ -90,6 +90,9 @@ py_binary(
     deps = [
         ":configuration",
         ":show_and_tell_model",
+        ":inference_wrapper",
+        "//im2txt/inference_utils:caption_generator",
+        "//im2txt/inference_utils:vocabulary",
     ],
 )
 

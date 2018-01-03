@@ -103,6 +103,7 @@ def main(_):
         with tf.gfile.GFile(filename, "rb") as f:
             image = f.read()
         if image == None:
+          print("skip id",img_id,filename)
           continue
         #captions = generator.beam_search(sess, image)
         captions = generator.bulb_beam_search(sess, image)
