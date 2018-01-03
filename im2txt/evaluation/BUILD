@@ -9,7 +9,7 @@ py_binary(
     srcs = ["evaluate_im2txt.py"],
     srcs_version = "PY2AND3",
     deps = [
-        "//im2txt/evaludation/pycocoevalcap:eval",
-        "//im2txt/evaludation/pycocotools:coco",
+        "//im2txt/evaluation/pycocoevalcap:eval",
+        "//im2txt/evaluation/pycocotools:coco",
     ],
 )
