@@ -14,10 +14,10 @@ from im2txt.inference_utils import vocabulary
 
 FLAGS = tf.flags.FLAGS
 
-tf.flags.DEFINE_string("checkpoint_path", "",
+tf.flags.DEFINE_string("checkpoint_path", "model/train/model.ckpt-250000",
                        "Model checkpoint file or directory containing a "
                        "model checkpoint file.")
-tf.flags.DEFINE_string("vocab_file", "", "Text file containing the vocabulary.")
+tf.flags.DEFINE_string("vocab_file", "data/mscoco/word_counts.txt", "Text file containing the vocabulary.")
 tf.flags.DEFINE_string("caption_file", "data/mscoco/raw-data/annotations/captions_val2014.json",
                        "File containing the captions.")
 tf.flags.DEFINE_string("id_list_file", "data/images_in_testset.txt",
@@ -102,7 +102,10 @@ def main(_):
         filename = id_to_filename[img_id]
         with tf.gfile.GFile(filename, "rb") as f:
             image = f.read()
-        captions = generator.beam_search(sess, image)
+        if image == None:
+          continue
+        #captions = generator.beam_search(sess, image)
+        captions = generator.bulb_beam_search(sess, image)
         if FLAGS.verbose:
             print("Captions for image %s:" % os.path.basename(filename))
         bleu1_scores = []
