@@ -109,6 +109,16 @@ py_binary(
 )
 
 py_binary(
+    name = "evaluate_im2txt",
+    srcs = ["evaludation/evaluate_im2txt.py"],
+    srcs_version = "PY2AND3",
+    deps = [
+        "//im2txt/evaludation/pycocoevalcap:eval",
+        "//im2txt/evaludation/pycocotools:coco",
+    ],
+)
+
+py_binary(
     name = "run_inference",
     srcs = ["run_inference.py"],
     srcs_version = "PY2AND3",
