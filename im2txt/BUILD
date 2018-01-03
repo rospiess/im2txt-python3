@@ -84,6 +84,16 @@ py_binary(
 )
 
 py_binary(
+    name = "evaluate_metrics",
+    srcs = ["evaluate_metrics.py"],
+    srcs_version = "PY2AND3",
+    deps = [
+        ":configuration",
+        ":show_and_tell_model",
+    ],
+)
+
+py_binary(
     name = "run_inference",
     srcs = ["run_inference.py"],
     srcs_version = "PY2AND3",
