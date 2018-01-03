@@ -43,6 +43,17 @@ py_library(
     ],
 )
 
+py_library(
+    name = "show_and_tell_model_improved",
+    srcs = ["show_and_tell_model_improved.py"],
+    srcs_version = "PY2AND3",
+    deps = [
+        "//im2txt/ops:image_embedding",
+        "//im2txt/ops:image_processing",
+        "//im2txt/ops:inputs",
+    ],
+)
+
 py_test(
     name = "show_and_tell_model_test",
     size = "large",
@@ -59,6 +70,7 @@ py_library(
     srcs_version = "PY2AND3",
     deps = [
         ":show_and_tell_model",
+        ":show_and_tell_model_improved",
         "//im2txt/inference_utils:inference_wrapper_base",
     ],
 )
