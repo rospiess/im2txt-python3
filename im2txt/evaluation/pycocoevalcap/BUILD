@@ -1,4 +1,4 @@
-package(default_visibility = ["//im2txt:internal"])
+package(default_visibility = ["//im2txt/evaluation:internal"])
 
 licenses(["notice"])  # Apache 2.0
 
