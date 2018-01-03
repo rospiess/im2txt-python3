@@ -274,7 +274,6 @@ class CaptionGenerator(object):
                 
         def dfs(partial_captions_list,discrepancy):
             if len(partial_captions_list) == 0:
-                # We have run out of partial candidates; happens when beam_size = 1.
                 return
             new_partial_captions_list = []
             input_feed = np.array([c.sentence[-1] for c in partial_captions_list])
@@ -286,12 +285,12 @@ class CaptionGenerator(object):
             for i, partial_caption in enumerate(partial_captions_list):
                 caption_length = len(partial_caption.sentence)+1
                 if caption_length  > self.max_caption_length:
-                    if discrepancy ==0 :
+                    if discrepancy == 0 :
                         partial_captions.push(partial_caption)
                     continue
                 word_probabilities = softmax[i]
                 state = new_states[i]
-                # For this partial caption, get the (max_gap+1)*beam_size most probable next words.
+                # For this partial caption, keep the (max_gap+1)*beam_size most probable next words.
                 words_and_probs = list(enumerate(word_probabilities))
                 words_and_probs.sort(key=lambda x: -x[1])
                 words_and_probs = words_and_probs[0:self.beam_size*(max_gap+1)]
@@ -303,7 +302,7 @@ class CaptionGenerator(object):
                     logprob = partial_caption.logprob + math.log(p)
                     score = logprob
                     if w == self.vocab.end_id:
-                        if discrepancy == 0:
+                        if discrepancy == 0: # ensure this search direction is of the exact discrepancy, to avoid duplicates
                             if self.length_normalization_factor > 0:
                                 score /= len(sentence) ** self.length_normalization_factor
                             beam = Caption(sentence, state, logprob, score)
@@ -312,8 +311,8 @@ class CaptionGenerator(object):
                         beam = Caption(sentence, state, logprob, score)
                         new_partial_captions_list.append(beam)
 
-            if len(partial_captions_list) == 0:
-                # We have run out of partial candidates; happens when beam_size = 1.
+            if len(new_partial_captions_list) == 0:
+                # We have run out of partial candidates
                 return
             
             # sort all the partial_captions and keep top self.beam_size*(max_gap+1) partial captions
@@ -321,9 +320,11 @@ class CaptionGenerator(object):
             new_partial_captions_list = new_partial_captions_list[0:self.beam_size*(max_gap+1)]
                 
             if discrepancy > 0:
+            # diverge from the optimal slice at this level
                 for gap in range(1,max_gap+1):
                     partial_captions_slice = new_partial_captions_list[gap*self.beam_size:(gap+1)*self.beam_size]
                     dfs(partial_captions_slice,discrepancy-1)
+            # do not diverge
             partial_captions_slice = new_partial_captions_list[0:self.beam_size]
             dfs(partial_captions_slice,discrepancy)
 
