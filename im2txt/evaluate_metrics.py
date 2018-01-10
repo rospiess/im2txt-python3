@@ -26,6 +26,9 @@ tf.flags.DEFINE_bool("verbose", False,
 # Use Baseline or improved model
 tf.flags.DEFINE_bool("improved", True,
                      "Use improved model")
+# use bulb or simple beam
+tf.flags.DEFINE_bool("bulb", True,
+                     "Use bulb search")
 
 
 tf.logging.set_verbosity(tf.logging.INFO)
@@ -89,9 +92,16 @@ def main(_):
     # available beam search parameters.
     generator = caption_generator.CaptionGenerator(model, vocab)
 
-    output_captions = []
+    if FLAGS.bulb:
+      out_file_path = 'captions_val2014_im2txt_results.json'
+    else:
+      out_file_path = 'captions_val2014_bulb_results.json'
+    with open(out_file_path, 'r') as infile:
+      output_captions = json.load(infile)
 
     for t, img_id in enumerate(test_ids):
+        if t<=100:
+          continue
         filename = id_to_filename[img_id]
         try:
           with tf.gfile.GFile(filename, "rb") as f:
@@ -100,7 +110,10 @@ def main(_):
           print("skip id",img_id,filename)
           continue
 
-        captions = generator.beam_search(sess, image)
+        if FLAGS.bulb:
+          captions = generator.bulb_beam_search(sess, image)
+        else:
+          captions = generator.beam_search(sess, image)
 
         first_sentence = " ".join([vocab.id_to_word(w) for w in captions[0].sentence[1:-1]])
         output_captions.append({"image_id": img_id, "caption": first_sentence})
@@ -119,11 +132,10 @@ def main(_):
 
         if t % 10 == 0:
             print("%d / %d" % (t,len(test_ids)))
-        if t == 100:
+        if t == 200:
           break
 
-
-    with open('captions_val2014_base_results.json', 'a') as outfile:
+    with open(out_file_path, 'w') as outfile:
         json.dump(output_captions, outfile)
 
 
