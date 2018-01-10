@@ -100,7 +100,7 @@ def main(_):
           print("skip id",img_id,filename)
           continue
 
-        captions = generator.bulb_beam_search(sess, image)
+        captions = generator.beam_search(sess, image)
 
         first_sentence = " ".join([vocab.id_to_word(w) for w in captions[0].sentence[1:-1]])
         output_captions.append({"image_id": img_id, "caption": first_sentence})
@@ -123,7 +123,7 @@ def main(_):
           break
 
 
-    with open('captions_val2014_im2txt_results.json', 'a') as outfile:
+    with open('captions_val2014_base_results.json', 'a') as outfile:
         json.dump(output_captions, outfile)
 
 
