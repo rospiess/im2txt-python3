@@ -96,7 +96,7 @@ def main(_):
         with tf.gfile.GFile(filename, "rb") as f:
             image = f.read()
 
-        captions = generator.beam_search(sess, image)
+        captions = generator.bulb_beam_search(sess, image)
 
         first_sentence = " ".join([vocab.id_to_word(w) for w in captions[0].sentence[1:-1]])
         output_captions.append({"image_id": img_id, "caption": first_sentence})
