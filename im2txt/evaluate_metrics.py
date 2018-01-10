@@ -93,8 +93,12 @@ def main(_):
 
     for t, img_id in enumerate(test_ids):
         filename = id_to_filename[img_id]
-        with tf.gfile.GFile(filename, "rb") as f:
+        try:
+          with tf.gfile.GFile(filename, "rb") as f:
             image = f.read()
+        except Exception:
+          print("skip id",img_id,filename)
+          continue
 
         captions = generator.bulb_beam_search(sess, image)
 
