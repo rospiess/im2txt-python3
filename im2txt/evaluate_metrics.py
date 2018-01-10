@@ -119,9 +119,11 @@ def main(_):
 
         if t % 10 == 0:
             print("%d / %d" % (t,len(test_ids)))
+        if t == 100:
+          break
 
 
-    with open('captions_val2014_im2txt_results.json', 'w') as outfile:
+    with open('captions_val2014_im2txt_results.json', 'a') as outfile:
         json.dump(output_captions, outfile)
 
 
