@@ -29,7 +29,8 @@ tf.flags.DEFINE_bool("improved", True,
 # use bulb or simple beam
 tf.flags.DEFINE_bool("bulb", True,
                      "Use bulb search")
-
+# set beam size
+tf.flags.DEFINE_integer("beam",3,"beam size")
 
 tf.logging.set_verbosity(tf.logging.INFO)
 
@@ -90,17 +91,19 @@ def main(_):
     # Prepare the caption generator. Here we are implicitly using the default
     # beam search parameters. See caption_generator.py for a description of the
     # available beam search parameters.
-    generator = caption_generator.CaptionGenerator(model, vocab)
+    generator = caption_generator.CaptionGenerator(model, vocab, beam_size=FLAGS.beam)
 
     if FLAGS.bulb:
       out_file_path = 'captions_val2014_im2txt_results.json'
     else:
-      out_file_path = 'captions_val2014_bulb_results.json'
-    with open(out_file_path, 'r') as infile:
-      output_captions = json.load(infile)
-
+      out_file_path = 'captions_val2014_beam'+str(FLAGS.beam)+'_results.json'
+    try:
+      with open(out_file_path, 'r') as infile:
+        output_captions = json.load(infile)
+    except Exception:
+      output_captions = []
     for t, img_id in enumerate(test_ids):
-        if t<=100:
+        if t<len(output_captions):
           continue
         filename = id_to_filename[img_id]
         try:
