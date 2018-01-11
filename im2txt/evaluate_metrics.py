@@ -35,6 +35,9 @@ tf.flags.DEFINE_integer("beam",3,"beam size")
 # varing beam size
 tf.flags.DEFINE_bool("vary",False,"vary beam size")
 
+# set break point
+tf.flags.DEFINE_integer("bp",200,"break point")
+
 tf.logging.set_verbosity(tf.logging.INFO)
 
 
@@ -142,8 +145,8 @@ def main(_):
 
         if t % 10 == 0:
             print("%d / %d" % (t,len(test_ids)))
-        #if t == 200:
-         # break
+        if t == FLAGS.bp:
+          break
 
     with open(out_file_path, 'w') as outfile:
         json.dump(output_captions, outfile)
