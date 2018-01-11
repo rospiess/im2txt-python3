@@ -32,6 +32,9 @@ tf.flags.DEFINE_bool("bulb", True,
 # set beam size
 tf.flags.DEFINE_integer("beam",3,"beam size")
 
+# varing beam size
+tf.flags.DEFINE_bool("vary",False,"vary beam size")
+
 tf.logging.set_verbosity(tf.logging.INFO)
 
 
@@ -95,6 +98,8 @@ def main(_):
 
     if FLAGS.bulb:
       out_file_path = 'captions_val2014_bulb'+str(FLAGS.beam)+'_results.json'
+    elif FLAGS.vary:
+      out_file_path = 'captions_val2014_vary'+str(FLAGS.beam)+'_results.json'
     else:
       out_file_path = 'captions_val2014_beam'+str(FLAGS.beam)+'_results.json'
     try:
@@ -115,6 +120,8 @@ def main(_):
 
         if FLAGS.bulb:
           captions = generator.bulb_beam_search(sess, image)
+        elif FLAGS.vary:
+          captions = generator.vary_beam_search(sess, image)
         else:
           captions = generator.beam_search(sess, image)
 
