@@ -275,6 +275,8 @@ class CaptionGenerator(object):
         def dfs(partial_captions_list,discrepancy,level):
             if len(partial_captions_list) == 0:
                 return
+            if level > 5 and discrepancy > 0: # if didn't diverge at the first 5 levels, return
+                return
             if level > self.max_caption_length:
                 if discrepancy == 0 :
                     for partial_caption in partial_captions_list:
@@ -318,8 +320,8 @@ class CaptionGenerator(object):
             # sort all the partial_captions and keep top self.beam_size*(max_gap+1) partial captions
             new_partial_captions_list.sort(reverse=True)
             new_partial_captions_list = new_partial_captions_list[0:self.beam_size*(max_gap+1)]
-                
-            if discrepancy > 0 and level<6:
+
+            if discrepancy > 0:
             # diverge from the optimal slice at this level
                 for gap in range(1,max_gap+1):
                     partial_captions_slice = new_partial_captions_list[gap*self.beam_size:(gap+1)*self.beam_size]
