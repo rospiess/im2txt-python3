@@ -400,7 +400,7 @@ class CaptionGenerator(object):
                 # For this partial caption, get the beam_size most probable next words.
                 words_and_probs = list(enumerate(word_probabilities))
                 words_and_probs.sort(key=lambda x: -x[1])
-                words_and_probs = words_and_probs[0:vary_beam_size]
+                words_and_probs = words_and_probs[0:int(vary_beam_size)]
                 # Each next word gives a new partial caption.
                 for w, p in words_and_probs:
                     if p < 1e-12:
