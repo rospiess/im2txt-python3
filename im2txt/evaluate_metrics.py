@@ -94,7 +94,7 @@ def main(_):
     generator = caption_generator.CaptionGenerator(model, vocab, beam_size=FLAGS.beam)
 
     if FLAGS.bulb:
-      out_file_path = 'captions_val2014_im2txt_results.json'
+      out_file_path = 'captions_val2014_bulb'+str(FLAGS.beam)+'_results.json'
     else:
       out_file_path = 'captions_val2014_beam'+str(FLAGS.beam)+'_results.json'
     try:

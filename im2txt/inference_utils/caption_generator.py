@@ -272,8 +272,13 @@ class CaptionGenerator(object):
         max_discrepancy = 1
         max_gap = 1
                 
-        def dfs(partial_captions_list,discrepancy):
+        def dfs(partial_captions_list,discrepancy,level):
             if len(partial_captions_list) == 0:
+                return
+            if level > self.max_caption_length:
+                if discrepancy == 0 :
+                    for partial_caption in partial_captions_list:
+                        partial_captions.push(partial_caption)
                 return
             new_partial_captions_list = []
             input_feed = np.array([c.sentence[-1] for c in partial_captions_list])
@@ -283,11 +288,6 @@ class CaptionGenerator(object):
                                                                         input_feed,
                                                                         state_feed)
             for i, partial_caption in enumerate(partial_captions_list):
-                caption_length = len(partial_caption.sentence)+1
-                if caption_length  > self.max_caption_length:
-                    if discrepancy == 0 :
-                        partial_captions.push(partial_caption)
-                    continue
                 word_probabilities = softmax[i]
                 state = new_states[i]
                 # For this partial caption, keep the (max_gap+1)*beam_size most probable next words.
@@ -319,14 +319,14 @@ class CaptionGenerator(object):
             new_partial_captions_list.sort(reverse=True)
             new_partial_captions_list = new_partial_captions_list[0:self.beam_size*(max_gap+1)]
                 
-            if discrepancy > 0:
+            if discrepancy > 0 and level<10:
             # diverge from the optimal slice at this level
                 for gap in range(1,max_gap+1):
                     partial_captions_slice = new_partial_captions_list[gap*self.beam_size:(gap+1)*self.beam_size]
-                    dfs(partial_captions_slice,discrepancy-1)
+                    dfs(partial_captions_slice,discrepancy-1,level+1)
             # do not diverge
             partial_captions_slice = new_partial_captions_list[0:self.beam_size]
-            dfs(partial_captions_slice,discrepancy)
+            dfs(partial_captions_slice,discrepancy,level+1)
 
         # Feed in the image to get the initial state.
         initial_state = self.model.feed_image(sess, encoded_image)
@@ -341,7 +341,7 @@ class CaptionGenerator(object):
         partial_captions = TopN(self.beam_size)
 
         for discrepancy in range(max_discrepancy+1): # discrepancy = 0 equals simple beam search
-            dfs(partial_captions_list,discrepancy)
+            dfs(partial_captions_list,discrepancy,1)
 
         # If we have no complete captions then fall back to the partial captions.
         # But never output a mixture of complete and partial captions because a
