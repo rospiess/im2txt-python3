@@ -135,8 +135,8 @@ def main(_):
 
         if t % 10 == 0:
             print("%d / %d" % (t,len(test_ids)))
-        if t == 200:
-          break
+        #if t == 200:
+         # break
 
     with open(out_file_path, 'w') as outfile:
         json.dump(output_captions, outfile)
