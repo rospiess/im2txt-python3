@@ -319,7 +319,7 @@ class CaptionGenerator(object):
             new_partial_captions_list.sort(reverse=True)
             new_partial_captions_list = new_partial_captions_list[0:self.beam_size*(max_gap+1)]
                 
-            if discrepancy > 0 and level<10:
+            if discrepancy > 0 and level<6:
             # diverge from the optimal slice at this level
                 for gap in range(1,max_gap+1):
                     partial_captions_slice = new_partial_captions_list[gap*self.beam_size:(gap+1)*self.beam_size]
