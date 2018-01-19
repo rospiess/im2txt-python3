@@ -38,6 +38,9 @@ tf.flags.DEFINE_bool("vary",False,"vary beam size")
 # set break point
 tf.flags.DEFINE_integer("bp",200,"break point")
 
+#set normalization factor
+tf.flags.DEFINE_float("nf",1.0,"length normalization factor")
+
 tf.logging.set_verbosity(tf.logging.INFO)
 
 
@@ -97,14 +100,15 @@ def main(_):
     # Prepare the caption generator. Here we are implicitly using the default
     # beam search parameters. See caption_generator.py for a description of the
     # available beam search parameters.
-    generator = caption_generator.CaptionGenerator(model, vocab, beam_size=FLAGS.beam)
+    generator = caption_generator.CaptionGenerator(model, vocab, beam_size=FLAGS.beam, length_normalization_factor=FLAGS.nf)
 
     if FLAGS.bulb:
-      out_file_path = 'captions_val2014_bulb'+str(FLAGS.beam)+'_results.json'
+      out_file_path = 'captions_val2014_bulb'+str(FLAGS.beam)
     elif FLAGS.vary:
-      out_file_path = 'captions_val2014_vary'+str(FLAGS.beam)+'_results.json'
+      out_file_path = 'captions_val2014_vary'+str(FLAGS.beam)
     else:
-      out_file_path = 'captions_val2014_beam'+str(FLAGS.beam)+'_results.json'
+      out_file_path = 'captions_val2014_beam'+str(FLAGS.beam)
+    out_file_path += '_'+str(FLAGS.nf)+'_results.json'
     try:
       with open(out_file_path, 'r') as infile:
         output_captions = json.load(infile)
